@@ -1,5 +1,4 @@
-'use client'
-
+"use client"
 import React from 'react'
 import Link from 'next/link'
 import { ChevronLeft } from 'lucide-react'
@@ -25,18 +24,38 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    console.log('Form submitted:', formData)
+    
+    const googleFormUrl = 'https://docs.google.com/forms/u/2/d/e/1FAIpQLSf2CtWW9otOb-2wFWUE7oxzGJNipbkHlu5WBMqR-8WSkAwFKw/formResponse'
+
+    // Create form data object for Google Form fields
+    const googleFormData = new FormData()
+    googleFormData.append('entry.2002914703', formData.fullName)   
+    googleFormData.append('entry.1134970525', formData.email)      
+    googleFormData.append('entry.763304642', formData.phone)      
+    googleFormData.append('entry.1311604632', formData.company)    
+    googleFormData.append('entry.295189026', formData.jobTitle)   
+    googleFormData.append('entry.51510372', formData.experience) 
+
+    // Send form data to Google Form
+    try {
+      await fetch(googleFormUrl, {
+        method: 'POST',
+        body: googleFormData,
+        mode: 'no-cors'
+      })
+      alert('Registration successful!')
+    } catch (error) {
+      console.error('Error submitting registration:', error)
+      alert('Registration failed.')
+    }
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navigation - reduced height */}
+      {/* Navigation */}
       <nav className="bg-white border-b">
         <div className="max-w-2xl mx-auto px-4 h-12 flex items-center">
-          <Link 
-            href="/bootcamp" 
-            className="flex items-center text-gray-600 hover:text-gray-900 text-sm"
-          >
+          <Link href="/bootcamp" className="flex items-center text-gray-600 hover:text-gray-900 text-sm">
             <ChevronLeft className="h-4 w-4 mr-1" />
             Back to Schedule
           </Link>
@@ -45,15 +64,13 @@ export default function RegisterPage() {
 
       <main className="max-w-2xl mx-auto px-4 py-6">
         <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">
-            Register for AWS Bootcamp
-          </h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Register for AWS Bootcamp</h1>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Personal Information */}
             <div className="space-y-3">
               <h2 className="text-base font-semibold text-gray-900">Personal Information</h2>
-              
+
               <div>
                 <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
                   Full Name *
@@ -99,7 +116,7 @@ export default function RegisterPage() {
             {/* Professional Information */}
             <div className="space-y-3 pt-3 border-t">
               <h2 className="text-base font-semibold text-gray-900">Professional Information</h2>
-              
+
               <div>
                 <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-1">
                   Company/Organization
