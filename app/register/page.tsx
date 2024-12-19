@@ -3,6 +3,22 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { ChevronLeft } from 'lucide-react'
+import { gql } from '@apollo/client'
+import client from '@/utils/apollo-client'
+
+// GraphQL Mutation for Registration
+const CREATE_REGISTRATION = gql`
+  mutation CreateRegistrationdb($input: CreateRegistrationdbInput!) {
+    createRegistrationdb(input: $input) {
+      email
+      fullName
+      company
+      phone
+      jobTitle
+      experience
+    }
+  }
+`
 
 interface RegisterFormData {
   fullName: string
@@ -20,29 +36,55 @@ export default function RegisterPage() {
     phone: '',
     company: '',
     jobTitle: '',
-    experience: 'beginner'
+    experience: 'beginner',
   })
 
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
+  // Handle form submission
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    console.log('Form submitted:', formData)
-    setIsSubmitted(true)
+    setError(null) // Reset error state
+
+    try {
+      // Prepare the input object that the mutation expects
+      const input = {
+        email: formData.email,
+        fullName: formData.fullName,
+        phone: formData.phone,
+        company: formData.company,
+        jobTitle: formData.jobTitle,
+        experience: formData.experience,
+      }
+
+      // Send the form data to AppSync via Apollo Client
+      const result = await client.mutate({
+        mutation: CREATE_REGISTRATION,
+        variables: { input },
+      })
+
+      console.log('Registration successful:', result)
+      setIsSubmitted(true) // Set submitted state to true
+
+    } catch (err) {
+      console.error('Error submitting registration:', err)
+      setError('Failed to submit registration. Please try again.') // Show error message if the mutation fails
+    }
   }
 
   const handleConfirm = () => {
-    setIsSubmitted(false)
+    setIsSubmitted(false) // Reset submitted state
     window.location.href = '/' // Redirect to home page
   }
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
-      {/* Navigation - reduced height */}
+      {/* Navigation */}
       <nav className="bg-white border-b w-full">
         <div className="max-w-xl mx-auto px-4 h-12 flex items-center">
-          <Link 
-            href="/bootcamp" 
+          <Link
+            href="/bootcamp"
             className="flex items-center text-gray-600 hover:text-gray-900 text-sm"
           >
             <ChevronLeft className="h-4 w-4 mr-1" />
@@ -61,7 +103,6 @@ export default function RegisterPage() {
             {/* Personal Information */}
             <div className="space-y-3">
               <h2 className="text-base font-semibold text-gray-900">Personal Information</h2>
-              
               <div>
                 <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
                   Full Name *
@@ -75,7 +116,6 @@ export default function RegisterPage() {
                   onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                 />
               </div>
-
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                   Email Address *
@@ -89,7 +129,6 @@ export default function RegisterPage() {
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 />
               </div>
-
               <div>
                 <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
                   Phone Number *
@@ -108,7 +147,6 @@ export default function RegisterPage() {
             {/* Professional Information */}
             <div className="space-y-3 pt-3 border-t">
               <h2 className="text-base font-semibold text-gray-900">Professional Information</h2>
-              
               <div>
                 <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-1">
                   Company/Organization *
@@ -122,7 +160,6 @@ export default function RegisterPage() {
                   onChange={(e) => setFormData({ ...formData, company: e.target.value })}
                 />
               </div>
-
               <div>
                 <label htmlFor="jobTitle" className="block text-sm font-medium text-gray-700 mb-1">
                   Job Title *
@@ -136,7 +173,6 @@ export default function RegisterPage() {
                   onChange={(e) => setFormData({ ...formData, jobTitle: e.target.value })}
                 />
               </div>
-
               <div>
                 <label htmlFor="experience" className="block text-sm font-medium text-gray-700 mb-1">
                   AWS Experience Level *
@@ -165,6 +201,7 @@ export default function RegisterPage() {
               </button>
             </div>
           </form>
+          {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
         </div>
       </main>
 

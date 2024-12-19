@@ -18,8 +18,9 @@
         "name": "next"
       }
     ],
+    "baseUrl": ".", // This tells the compiler the base directory for relative paths
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./app/*"] // Change this to point to the app folder (root folder in Next.js)
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
